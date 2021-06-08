@@ -1,0 +1,20 @@
+name: "Hello GopherJS"
+description: "Greet someone and record the time"
+inputs:
+  first:
+    description: "Who to greet first via the environment variable"
+    required: true
+    default: "World"
+  second:
+    description: "Who to greet second via go-githubactions"
+    required: true
+    default: "World"
+outputs:
+  one:
+    description: "The time we greeted you first"
+  two:
+    description: "The time we greeted you second"
+
+runs:
+  using: "node12"
+  main: "index.js"

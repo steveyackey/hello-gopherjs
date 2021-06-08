@@ -1,0 +1,54 @@
+name: Hello GopherJS
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  hello-gopherjs:
+    name: Hello GopherJS
+    runs-on: ubuntu-20.04
+    env:
+      workdir: ./go/src/hello-gopherjs
+      basefile: index
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - uses: actions/checkout@v2
+        with:
+          path: ${{ env.workdir }} # we checkout to a directory that will end up in our GOPATH
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "^1.16"
+
+      - name: Build
+        working-directory: ${{ env.workdir }}
+        run: |
+          GO111MODULE=off go get -u github.com/gopherjs/gopherjs
+          export GOPATH=${{ github.workspace }}/go
+          go mod vendor
+          GOPHERJS_GOROOT="$(go env GOROOT)" gopherjs build -o ${{ env.basefile }}.js -m
+
+      - name: Hello GopherJS
+        uses: ./go/src/hello-gopherjs # can't use the env variable here or we get an error
+        id: hello
+        with:
+          first: Steve
+          second: Lina
+
+      - name: Get time
+        run: |
+          echo "First greeting was at ${{ steps.hello.outputs.one }}"
+          echo "Second greeting was at ${{ steps.hello.outputs.two }}"
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Updated hello-gopherjs GitHub Action src
+          branch: ${{ steps.extract_branch.outputs.branch }}
+          file_pattern: ${{ env.basefile }}.js*
+          repository: ${{ env.workdir }}
