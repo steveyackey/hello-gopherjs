@@ -1,5 +1,5 @@
 name: "Hello GopherJS"
-description: "Greet someone and record the time"
+description: "Greet two people and record the time"
 inputs:
   first:
     description: "Who to greet first via the environment variable"
